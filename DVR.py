@@ -60,9 +60,8 @@ class GenerateRoutingTables:
             node_name = node.get_node_name()
             node_neighbors = node.get_neighbors()
             node_neighbors_distance = node.get_neighbor_distance()
-            print("from generate_initial_routing_table: "
-                  "node_name: {} node_neighbors: {} node_neighbor_distance: {} "
-                  .format(node_name, node_neighbors, node_neighbors_distance))
+            print("{}".format("*" * 60))
+            print("{}{}{}".format("*", " " * 58, "*"))
             for j in NodeStructure.list_of_nodes:
                 if j == node_name:
                     print("{} {} {}".format(node_name, node_name, node_neighbors_distance[k]))
@@ -72,6 +71,7 @@ class GenerateRoutingTables:
                     print("{} {} {}".format(node_name, j, node_neighbors_distance[k]))
                 k = k + 1  # k gets incremented here because the 'node_neighbors_distance' contains all the distances
                 # i.e. -1's, 0's and the actual neighbor distance.
+            print("{}".format("*" * 60))
 
     def print_routing_table(self):
         print("{}".format("*" * 50))
