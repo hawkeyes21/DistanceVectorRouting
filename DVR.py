@@ -61,17 +61,19 @@ class GenerateRoutingTables:
             node_neighbors = node.get_neighbors()
             node_neighbors_distance = node.get_neighbor_distance()
             print("{}".format("*" * 60))
-            print("{}{}{}".format("*", " " * 58, "*"))
+            print("{:<10}{:>20} {:<20}{:>9}".format("*", 'NODE', node_name, "*"))
+            print("{}".format("*" * 60))
+            print("{:<20}{:<20}{:<20}".format("FROM", "TO", "DISTANCE"))
             for j in NodeStructure.list_of_nodes:
                 if j == node_name:
-                    print("{} {} {}".format(node_name, node_name, node_neighbors_distance[k]))
+                    print("{:<20}{:<20}{:<20}".format(node_name, node_name, node_neighbors_distance[k]))
                 elif j in node_neighbors:
-                    print("{} {} {}".format(node_name, j, node_neighbors_distance[k]))
+                    print("{:<20}{:<20}{:<20}".format(node_name, j, node_neighbors_distance[k]))
                 else:
-                    print("{} {} {}".format(node_name, j, node_neighbors_distance[k]))
+                    print("{:<20}{:<20}{:<20}".format(node_name, j, node_neighbors_distance[k]))
                 k = k + 1  # k gets incremented here because the 'node_neighbors_distance' contains all the distances
                 # i.e. -1's, 0's and the actual neighbor distance.
-            print("{}".format("*" * 60))
+            print("{}\n".format("*" * 60))
 
     def print_routing_table(self):
         print("{}".format("*" * 50))
