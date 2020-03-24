@@ -99,7 +99,6 @@ class GenerateRoutingTables:
             working_node_name = current_node.get_node_name()
             working_node_neighbors = current_node.get_neighbors()
             working_node_neighbors_dist = current_node.get_neighbor_distance()
-            working_node_hops = current_node.get_node_hops()
             for n in working_node_neighbors:
                 if n == '\0':
                     continue
@@ -108,13 +107,17 @@ class GenerateRoutingTables:
                 neighbor_node_name = neighbor_node_instance.get_node_name()
                 neighbor_node_neighbors = neighbor_node_instance.get_neighbors()
                 neighbor_node_distance = neighbor_node_instance.get_neighbor_distance()
+                neighbor_node_hops = neighbor_node_instance.get_node_hops()
                 distance_to_working_node = neighbor_node_distance[neighbor_node_neighbors.index(working_node_name)]
                 for nn in neighbor_node_neighbors:
-                    if nn == '\0' or nn == neighbor_node_name or nn == working_node_name:
+                    if nn == neighbor_node_name or nn == working_node_name:
                         count = count + 1
                         continue
                     else:
-                        if working_node_neighbors_dist[count] == -1:
+                        if nn == '\0' and neighbor_node_hops[count] == '\0':
+                            count = count + 1
+                            continue
+                        elif working_node_neighbors_dist[count] == -1:
                             temp_instance = self.nodes_dict[working_node_name]
                             temp_instance._neighbors_distance[count] = distance_to_working_node + neighbor_node_distance[count]
                             temp_instance._node_hops[count] = neighbor_node_name
@@ -128,7 +131,6 @@ class GenerateRoutingTables:
                                 temp_instance._node_hops[count] = neighbor_node_name
                                 self.nodes_dict[working_node_name] = temp_instance
                                 count = count + 1
-                        pass
 
     def generate_final_routing_table(self):
         self.implement_bellman_ford_algorithm()
@@ -171,7 +173,9 @@ def main():
     # gen.generate_initial_routing_table()
     gen.create_node_dict()
     gen.generate_final_routing_table()
+    print("*"*100)
     gen.generate_final_routing_table()
+    print("*"*100)
     gen.generate_final_routing_table()
 
 if __name__ == '__main__':
