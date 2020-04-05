@@ -28,7 +28,7 @@ class NodeStructure:
                 self.neighbors.append(n)
             else:
                 self.neighbors.append("\0")
-            self.node_next.append("\0")
+            # self.node_next.append("\0")
 
     # change input to *neighbors_distance, and make a list from that
     def set_neighbor_distance(self, neighbors_distance):
@@ -47,11 +47,16 @@ class NodeStructure:
     def set_next(self):
         count = 0
         for n in self.list_of_nodes:
-            if n == self.node_name or n in self.neighbors:
+            if n in self.neighbors or n == self.get_node_name():
                 self.node_next.append(n)
             else:
-                self.node_next.append('\0')
-            count = count + 1
+                self.node_next.append("\0")
+        # for n in self.list_of_nodes:
+        #     if n == self.node_name or n in self.neighbors:
+        #         self.node_next.append(n)
+        #     else:
+        #         self.node_next.append('\0')
+        #     count = count + 1
 
     def get_node_name(self):
         return self.node_name
@@ -62,7 +67,7 @@ class NodeStructure:
     def get_neighbor_distance(self):
         return self.neighbors_distance
 
-    def get_node_hops(self):
+    def get_next(self):
         return self.node_next
 
     def get_node_instance(self, node_name):
@@ -152,6 +157,8 @@ class GetData:
                         print("Invalid distance! Try again...")
                         continue
             self.nodes_list[i].set_neighbor_distance(neighbor_list)
+        for nn in self.nodes_list:
+            nn.set_next()
         print("All set...")
         return self.nodes_list
 
@@ -189,7 +196,9 @@ class GenerateRoutingTables:
                 node_obj = self.nodes_dictionary.get(i)
                 node_name = self.nodes_list[j].get_node_name()
                 node_dist = node_obj.get_neighbor_distance()[j]
-                node_next = "NULL"
+                node_next = node_obj.get_next()[j]
+                if node_next == "\0":
+                    node_next = "NULL"
                 print("{} {:20} {:20} {:20} {}".format("*", node_name, str(node_dist), node_next, "*"))
             print("*" * 66)
             print("\n")
@@ -207,25 +216,21 @@ class GenerateRoutingTables:
                 neighbor_node_name = neighbor_node_instance.get_node_name()
                 neighbor_node_neighbors = neighbor_node_instance.get_neighbors()
                 neighbor_node_distance = neighbor_node_instance.get_neighbor_distance()
-                neighbor_node_hops = neighbor_node_instance.get_node_hops()
+                neighbor_node_hops = neighbor_node_instance.get_next()
                 distance_to_working_node = neighbor_node_distance[neighbor_node_neighbors.index(working_node_name)]
                 for nn in neighbor_node_neighbors:
-                    if nn == neighbor_node_name or nn == working_node_name:
+                       # A to A                           A to B, B to A
+                    if nn == working_node_name or neighbor_node_distance[count] == 0 or neighbor_node_distance[count] == -1 or neighbor_node_hops[count] == working_node_name:
                         count = count + 1
                         continue
                     else:
-                        if nn == '\0' and neighbor_node_hops[count] == '\0':  # this condition will skip the node
-                            # -1 as distance
-                            count = count + 1
-                            continue
-                        else:
-                            temp_dist = distance_to_working_node + neighbor_node_distance[count]
-                            if working_node_neighbors_dist[count] == -1 or temp_dist < working_node_neighbors_dist[count]:
-                                updated_node = self.nodes_dictionary[working_node_name]
-                                updated_node.neighbors_distance[count] = temp_dist
-                                updated_node.node_next[count] = neighbor_node_name
-                                self.nodes_dictionary[working_node_name] = updated_node
-                                count = count + 1
+                        temp_dist = distance_to_working_node + neighbor_node_distance[count]
+                        if working_node_neighbors_dist[count] == -1 or temp_dist < working_node_neighbors_dist[count]:
+                            updated_node = self.nodes_dictionary[working_node_name]
+                            updated_node.neighbors_distance[count] = temp_dist
+                            updated_node.node_next[count] = neighbor_node_name
+                            self.nodes_dictionary[working_node_name] = updated_node
+                        count = count + 1
 
     def generate_final_routing_table(self):
         self.implement_bellman_ford_algorithm()
@@ -243,7 +248,7 @@ class GenerateRoutingTables:
                 node_obj = self.nodes_dictionary.get(i)
                 node_name = self.nodes_list[j].get_node_name()
                 node_dist = node_obj.get_neighbor_distance()[j]
-                node_next = node_obj.get_node_hops()[j]
+                node_next = node_obj.get_next()[j]
                 if node_next == '\0':
                     node_next = "NULL"
                 print("{} {:20} {:20} {:20} {}".format("*", node_name, str(node_dist), node_next, "*"))
