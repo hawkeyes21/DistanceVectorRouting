@@ -1,4 +1,5 @@
 import ExceptionList
+import time
 
 
 class NodeStructure:
@@ -51,12 +52,6 @@ class NodeStructure:
                 self.node_next.append(n)
             else:
                 self.node_next.append("\0")
-        # for n in self.list_of_nodes:
-        #     if n == self.node_name or n in self.neighbors:
-        #         self.node_next.append(n)
-        #     else:
-        #         self.node_next.append('\0')
-        #     count = count + 1
 
     def get_node_name(self):
         return self.node_name
@@ -180,10 +175,6 @@ class GenerateRoutingTables:
         for n in self.nodes_list:
             self.nodes_dictionary[n.get_node_name()] = n
 
-    # def create_node_dict(self):
-    #     for n in self.nodes_list:
-    #         self.nodes_dictionary[n.get_node_name()] = n
-
     def generate_initial_routing_table(self):
         # print("*"*102)
         for i in self.nodes_dictionary.keys():
@@ -208,6 +199,9 @@ class GenerateRoutingTables:
             working_node_name = current_node.get_node_name()
             working_node_neighbors = current_node.get_neighbors()
             working_node_neighbors_dist = current_node.get_neighbor_distance()
+            print("-" * 40)
+            print("Updating table of: {}... (neighbors: {})".format(working_node_name, working_node_neighbors))
+            time.sleep(3)
             for n in working_node_neighbors:
                 if n == '\0':
                     continue
@@ -218,8 +212,12 @@ class GenerateRoutingTables:
                 neighbor_node_distance = neighbor_node_instance.get_neighbor_distance()
                 neighbor_node_hops = neighbor_node_instance.get_next()
                 distance_to_working_node = neighbor_node_distance[neighbor_node_neighbors.index(working_node_name)]
+                print("Exchanging tables between: {} and {}".format(working_node_name, neighbor_node_name))
+                for _ in range(3):
+                    print(".", end='')
+                    time.sleep(1)
                 for nn in neighbor_node_neighbors:
-                       # A to A                           A to B, B to A
+                    # all the checks are implemented.
                     if nn == working_node_name or neighbor_node_distance[count] == 0 or neighbor_node_distance[count] == -1 or neighbor_node_hops[count] == working_node_name:
                         count = count + 1
                         continue
@@ -231,19 +229,37 @@ class GenerateRoutingTables:
                             updated_node.node_next[count] = neighbor_node_name
                             self.nodes_dictionary[working_node_name] = updated_node
                         count = count + 1
+                print("Exchange success...")
+            time.sleep(1)
+            print("Exchange complete for: {}".format(working_node_name))
+            print("-" * 40)
+            print("\n")
+            time.sleep(3)
 
     def generate_final_routing_table(self):
-        self.implement_bellman_ford_algorithm()
         GenerateRoutingTables.pass_count += 1
+        print("Starting exchange of routing tables soon. Iteration: {}".format(GenerateRoutingTables.pass_count))
+        for _ in range(8):
+            print(".", end='')
+            time.sleep(1)
+        print("\n")
+        self.implement_bellman_ford_algorithm()
         # for i, j in self.nodes_dictionary.items():
         #     print("{} Neighbors: {} Neighbor_dist: {} Next: {}".format(j.get_node_name(), j.get_neighbors(),
         #                                                                j.get_neighbor_distance(), j.get_node_hops()))
+        print("Iteration {} completed. Printing routing tables soon...".format(GenerateRoutingTables.pass_count))
+        time.sleep(6)
+        print("{} {}{} {}".format("*" * 34, "Iteration: ", GenerateRoutingTables.pass_count, "*" * 34))
         for i in self.nodes_dictionary.keys():
-            print("*" * 66)
-            print("{} {:>20}{}{} {:>19}".format("*", i, "'s final routing table(pass=", str(GenerateRoutingTables.pass_count), "*"))
-            print("*" * 66)
+            print("{:81}{}".format("*", "*"))
+            print("{:8}{}{:>8}".format("*", "*" * 66, "*"))
+            # print("\t\t", "*" * 66, "\t\t")
+            print("{:8}{}{:>20}{}{}){:>23}{:>8}".format("*", "*", i, "'s Routing Table (i=", str(GenerateRoutingTables.pass_count), "*", "*"))
+            # print("\t\t", "{} {:>20}{}{}) {:>19}".format("*", i, "'s Routing Table (i=", str(GenerateRoutingTables.pass_count), "*"))
+            print("{:8}{}{:>8}".format("*", "*" * 66, "*"))
+            # print("\t\t", "*" * 66)
             # print("*"*102)
-            print("{} {:20} {:20} {:20} {}".format("*", "Destination", "Distance", "Next", "*"))
+            print("{:8}{} {:20} {:20} {:20} {}{:>8}".format("*", "*", "Destination", "Distance", "Next", "*", "*"))
             for j in range(len(self.nodes_dictionary)):
                 node_obj = self.nodes_dictionary.get(i)
                 node_name = self.nodes_list[j].get_node_name()
@@ -251,9 +267,10 @@ class GenerateRoutingTables:
                 node_next = node_obj.get_next()[j]
                 if node_next == '\0':
                     node_next = "NULL"
-                print("{} {:20} {:20} {:20} {}".format("*", node_name, str(node_dist), node_next, "*"))
-            print("*" * 66)
-            print("\n")
+                print("{:8}{} {:20} {:20} {:20} {}{:>8}".format("*", "*", node_name, str(node_dist), node_next, "*", "*"))
+            print("{:8}{}{:>8}".format("*", "*" * 66, "*"))
+        print("{:81}{}".format("*", "*"))
+        print("*" * 82)
 
 
 def main():
@@ -263,9 +280,9 @@ def main():
     dvr_obj = GenerateRoutingTables(nodes)
     # dvr_obj.implement_bellman_ford_algorithm()
     dvr_obj.generate_initial_routing_table()
-    dvr_obj.generate_final_routing_table()
-    dvr_obj.generate_final_routing_table()
-    dvr_obj.generate_final_routing_table()
+    for iter_count in range(3):
+        dvr_obj.generate_final_routing_table()
+
 
 
 if __name__ == '__main__':
