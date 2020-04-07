@@ -1,4 +1,3 @@
-import ExceptionList
 import time
 
 
@@ -78,82 +77,25 @@ class GetData:
         self.nodes_list = nodes_list
 
     def get_data_from_user(self):
-        n = 0
-        while True:
-            try:
-                n = int(input("How many nodes in the network?: "))
-                if n < 0:
-                    raise ValueError
-                print(type(n))
-                break
-            except ValueError:
-                print(">>ERROR: Enter a positive integer!")
-                continue
 
-        print("***** GETTING NODE NAMES ******")
-        for i in range(n):
+        node_names = ['A', 'B', 'C', 'D', 'E']
+        node_neighbors = ['B', 'A C E', 'B D', 'C E', 'B D']
+        node_neighbors_dist = [[1], [1, 6, 3], [6, 2], [2, 4], [3, 4]]
+
+        for n in range(len(node_names)):
             test = NodeStructure()
-            while True:
-                try:
-                    node_name = input("Enter name for node {}: ".format(i+1)).strip()
-                    if node_name in test.list_of_nodes:
-                        raise ExceptionList.NodeAlreadyPresent
-                    if node_name == '' or node_name == "\0":
-                        raise  ExceptionList.NullNodeName
-                    test.set_node_name(node_name)
-                    self.nodes_list.append(test)
-                    break
-                except ExceptionList.NodeAlreadyPresent:
-                    print("Node with same name already present! Try again...")
-                    continue
-                except ExceptionList.NullNodeName:
-                    print("Invalid Node Name! Try again...")
-                    continue
-        print("***** GETTING NODE NEIGHBORS ******")
-        for i in range(n):
-            while True:
-                node_neighbors = input("Enter neighbors for node {} (space separated, in proper order e.g. a b c): ".format(self.nodes_list[i].get_node_name()))
-                n_n_list = node_neighbors.split()
-                try:
+            test.set_node_name(node_names[n])
+            self.nodes_list.append(test)
 
-                    if len(n_n_list) > n-1:
-                        raise ExceptionList.TooManyNeighbors
-                    for nn in n_n_list:
-                        if nn not in NodeStructure.list_of_nodes:
-                            raise ExceptionList.InvalidNeighbor
-                    if len(n_n_list) != len(set(n_n_list)):
-                        raise ExceptionList.NodeAlreadyPresent
-                    self.nodes_list[i].set_neighbor(node_neighbors)
-                    break
-                except ExceptionList.NodeAlreadyPresent:
-                    print("Repetition of nodes not allowed! Try again...")
-                    continue
-                except ExceptionList.TooManyNeighbors:
-                    print("Number of neighbors exceed total nodes! Try again...")
-                    continue
-                except ExceptionList.InvalidNeighbor:
-                    print("One of the neighbor node not found in the network! Try again...")
-                    continue
+        for n in range(len(node_names)):
+            self.nodes_list[n].set_neighbor(node_neighbors[n])
 
-        print("***** GETTING NODE NEIGHBORS DISTANCE ******")
-        for i in range(n):
-            neighbor_list = []
-            for j in self.nodes_list[i].get_neighbors():
-                if j == "\0":
-                    continue
-                while True:
-                    try:
-                        dist = int(input("Distance: {} to {}: ".format(self.nodes_list[i].get_node_name(), j)))
-                        if dist <= 0:
-                            raise ValueError
-                        neighbor_list.append(dist)
-                        break
-                    except ValueError:
-                        print("Invalid distance! Try again...")
-                        continue
-            self.nodes_list[i].set_neighbor_distance(neighbor_list)
-        for nn in self.nodes_list:
-            nn.set_next()
+        for n in range(5):
+            self.nodes_list[n].set_neighbor_distance(node_neighbors_dist[n])
+
+        for n in self.nodes_list:
+            n.set_next()
+        
         print("All set...")
         return self.nodes_list
 
